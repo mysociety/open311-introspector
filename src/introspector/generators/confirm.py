@@ -163,4 +163,19 @@ class ConfirmGenerator:
     def gen_service_whitelist(self):
         if self.config["service_whitelist"] and not self.update_all:
             return
-        self.config["service_whitelist"] = self.backend.get_grouped_services()
+
+        allowed = click.prompt(
+            "If you only want to allow certain subject codes,"
+            " enter them as a comma-separated (no spaces between) list now",
+            value_proc=lambda i: set(v.upper() for v in i.split(",")),
+        )
+
+        services = {}
+
+        for code, name, scode, sname in self.backend.get_service_subject_codes():
+            if allowed and scode not in allowed:
+                continue
+            o311_code = f"{code}_{scode}"
+            services.setdefault(name, {})[o311_code] = sname
+
+        self.config["service_whitelist"] = services

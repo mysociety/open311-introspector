@@ -126,8 +126,8 @@ class ConfirmBackend:
             )
         return types
 
-    def get_grouped_services(self):
-        services = {}
+    def get_service_subject_codes(self) -> Iterable[Tuple[str, str, str, str]]:
+        codes = []
         for item in self.GetEnquiryLookups():
             if not "TypeOfService" in item:
                 continue
@@ -154,7 +154,5 @@ class ConfirmBackend:
                             sname = entry["SubjectName"]
                     if sname and scode:
                         subjects.append((scode, sname))
-            services[name] = {
-                f"{code}_{subject}": sname for (subject, sname) in subjects
-            }
-        return services
+            codes.extend([(code, name, scode, sname) for scode, sname in subjects])
+        return codes
