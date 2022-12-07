@@ -115,6 +115,17 @@ class ConfirmBackend:
             types.append((item.get("CustomerTypeCode"), item.get("CustomerTypeName")))
         return types
 
+    def get_point_of_contact_codes(self) -> Iterable[Tuple[str, str]]:
+        types = []
+        for item in self.GetCustomerLookups():
+            if not "PointOfContact" in item:
+                continue
+            item = item["PointOfContact"]
+            types.append(
+                (item.get("PointOfContactCode"), item.get("PointOfContactName"))
+            )
+        return types
+
     def get_grouped_services(self):
         services = {}
         for item in self.GetEnquiryLookups():

@@ -140,6 +140,18 @@ class ConfirmGenerator:
             type=click.Choice([code for code, _ in methods]),
         )
 
+    def gen_point_of_contact_code(self):
+        if self.config["point_of_contact_code"] and not self.update_all:
+            return
+        methods = self.backend.get_point_of_contact_codes()
+        if comment := self._comment_for_key("point_of_contact_code"):
+            click.echo(f"\n{comment}")
+        click.echo("\n".join([f"{code}: {name}" for code, name in methods]))
+        self.config["point_of_contact_code"] = click.prompt(
+            "Point of contact code",
+            type=click.Choice([code for code, _ in methods]),
+        )
+
     def gen_service_whitelist(self):
         if self.config["service_whitelist"] and not self.update_all:
             return
