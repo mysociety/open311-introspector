@@ -1,14 +1,39 @@
+# open311-adapter configuration for Confirm integration
+
 endpoint_url: ""
+# The URL for the Confirm Connector API. For Confirm on Demand instances
+# this is a standard value depending on the environment:
+#  development: https://development-webservices.ondemand.confirm.co.uk/confirm/connector/confirmconnector.asmx
+#  production: https://production-webservices.ondemand.confirm.co.uk/confirm/connector/confirmconnector.asmx
+# On-premise Confirm may have its own URL.
+
 username: ""
+# Username for accessing the Confirm Connector API.
+
 password: ""
+# Password for accessing the Confirm Connector API.
+
 tenant_id: ""
+# Tenant/database ID to use when accessing Confirm.
+
+server_timezone: Europe/London
+# Confirm on Demand is always in Europe/London
+
+default_site_code: ""
+# site code value to use when reports are submitted without one. Not all
+# Confirms require a value, however.
+
 enquiry_method_code: ""
+# The means by which the user made this report. Optional.
+
 point_of_contact_code: ""
-server_timezone: "Europe/London"
+
+customer_type_code: ""
+# The type of customer to apply when raising enquiries in Confirm
+
 ignored_attributes: []
 service_whitelist: {}
 forward_status_mapping: {}
 reverse_status_mapping: {}
 attribute_descriptions: {}
 ignored_attribute_options: []
-default_site_code: ""

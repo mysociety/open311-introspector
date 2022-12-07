@@ -10,6 +10,7 @@ from .generators.confirm import ConfirmGenerator
 
 @click.group()
 def main():
+    """This utility creates and populates open311-adapter configurations"""
     pass
 
 
@@ -31,7 +32,7 @@ def main():
 @click.argument("backend", type=click.Choice(("confirm",)))
 @click.argument("council")
 def new(backend: str, council: str, config_path: Path, force: bool):
-    click.echo(f"Creating new {backend} config for {council} in {config_path}")
+    """Creates an empty configuration for a new integration"""
     templates = Path(__file__).parent.parent / "templates"
     for filename in os.listdir(templates / backend):
         src = templates / backend / filename
@@ -43,6 +44,7 @@ def new(backend: str, council: str, config_path: Path, force: bool):
             else:
                 dst.unlink()
         copy(src, dst)
+    click.echo(f"Created new {backend} config for {council} in {config_path}")
 
 
 @main.command()
@@ -70,6 +72,7 @@ def new(backend: str, council: str, config_path: Path, force: bool):
 )
 @click.argument("council")
 def generate(council: str, config_path: Path, backend: str, update: bool):
+    """Populates a configuration file with values"""
     click.echo(f"Updating {backend} config for {council} in {config_path}")
     cfg_file = config_path / f"council-{council}_{backend}.yml"
     if not cfg_file.exists():
