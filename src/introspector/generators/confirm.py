@@ -111,7 +111,15 @@ class ConfirmGenerator:
         if mapping and not self.update_all:
             return
 
+        allowed = click.prompt(
+            "If you only want to allow certain status codes,"
+            " enter them as a comma-separated (no spaces between) list now",
+            value_proc=lambda i: set(v.upper() for v in i.split(",")),
+        )
+
         for code, name, outstanding, _ in self.backend.get_status_codes():
+            if allowed and code not in allowed:
+                continue
             if code not in mapping:  # don't clobber any manual edits
                 mapping[code] = "open" if outstanding else "closed"
             mapping.yaml_add_eol_comment(name, code, column=0)
