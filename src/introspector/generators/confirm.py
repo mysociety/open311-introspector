@@ -111,10 +111,16 @@ class ConfirmGenerator:
         if mapping and not self.update_all:
             return
 
+        if codes := self.config["reverse_status_mapping"].keys():
+            default = ",".join(sorted(codes))
+        else:
+            default = ""
+
         allowed = click.prompt(
-            "If you only want to allow certain status codes,"
+            "\nIf you only want to allow certain status codes,"
             " enter them as a comma-separated (no spaces between) list now",
-            value_proc=lambda i: set(v.upper() for v in i.split(",")),
+            value_proc=lambda i: set(v.upper() for v in i.split(",")) if i else set(),
+            default=default,
         )
 
         for code, name, outstanding, _ in self.backend.get_status_codes():
@@ -133,7 +139,8 @@ class ConfirmGenerator:
         click.echo("\n".join([f"{code}: {name}" for code, name in methods]))
         self.config["enquiry_method_code"] = click.prompt(
             "Enquiry method code",
-            type=click.Choice([code for code, _ in methods]),
+            type=click.Choice([code for code, _ in methods] + [""]),
+            default=self.config.get("enquiry_method_code", ""),
         )
 
     def gen_customer_type_code(self):
@@ -145,7 +152,8 @@ class ConfirmGenerator:
         click.echo("\n".join([f"{code}: {name}" for code, name in methods]))
         self.config["customer_type_code"] = click.prompt(
             "Customer type code",
-            type=click.Choice([code for code, _ in methods]),
+            type=click.Choice([code for code, _ in methods] + [""]),
+            default=self.config.get("customer_type_code", ""),
         )
 
     def gen_point_of_contact_code(self):
@@ -157,17 +165,25 @@ class ConfirmGenerator:
         click.echo("\n".join([f"{code}: {name}" for code, name in methods]))
         self.config["point_of_contact_code"] = click.prompt(
             "Point of contact code",
-            type=click.Choice([code for code, _ in methods]),
+            type=click.Choice([code for code, _ in methods] + [""]),
+            default=self.config.get("point_of_contact_code", ""),
         )
 
     def gen_service_whitelist(self):
         if self.config["service_whitelist"] and not self.update_all:
             return
 
+        if groups := self.config["service_whitelist"].values():
+            subject_codes = {v.split("_")[1] for g in groups for v in g.keys()}
+            default = ",".join(sorted(subject_codes))
+        else:
+            default = ""
+
         allowed = click.prompt(
-            "If you only want to allow certain subject codes,"
+            "\nIf you only want to allow certain subject codes,"
             " enter them as a comma-separated (no spaces between) list now",
-            value_proc=lambda i: set(v.upper() for v in i.split(",")),
+            value_proc=lambda i: set(v.upper() for v in i.split(",")) if i else set(),
+            default=default,
         )
 
         services = {}
