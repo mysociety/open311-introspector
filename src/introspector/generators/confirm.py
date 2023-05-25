@@ -8,7 +8,7 @@ from ruamel.yaml import YAML
 from ruamel.yaml.comments import CommentedMap
 from ruamel.yaml.tokens import CommentToken
 
-from ..backends.confirm import ConfirmBackend
+from ..backends.confirm import ConfirmBackend, ConfirmError
 
 
 def user_input(*args, **kwargs):
@@ -63,6 +63,9 @@ class ConfirmGenerator:
 
         with self.cfg_path.open("w") as f:
             self.yaml.dump(self.config, f)
+        click.echo(
+            f"All done. Copy the following file to your open311-adapter installation and check it works:\n\n\t{self.cfg_path}"
+        )
 
     def _comment_for_key(self, key):
         if not hasattr(self.config, "ca"):
@@ -173,6 +176,12 @@ class ConfirmGenerator:
         if self.config["service_whitelist"] and not self.update_all:
             return
 
+        try:
+            backend_service_subject_codes = self.backend.get_service_subject_codes()
+            click.echo("\nConfirm credentials are OK, connected to API successfully.\n")
+        except ConfirmError as e:
+            raise click.ClickException(str(e))
+
         if groups := self.config["service_whitelist"].values():
             subject_codes = {v.split("_")[1] for g in groups for v in g.keys()}
             default = ",".join(sorted(subject_codes))
@@ -188,7 +197,7 @@ class ConfirmGenerator:
 
         services = {}
 
-        for code, name, scode, sname in self.backend.get_service_subject_codes():
+        for code, name, scode, sname in backend_service_subject_codes:
             if allowed and scode not in allowed:
                 continue
             o311_code = f"{code}_{scode}"

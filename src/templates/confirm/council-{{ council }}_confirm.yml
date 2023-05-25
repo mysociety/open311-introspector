@@ -19,6 +19,17 @@ tenant_id: ""
 server_timezone: Europe/London
 # Confirm on Demand is always in Europe/London
 
+
+# Mapping of Confirm service/subject codes to Open311 groups/categories.
+service_whitelist: {}
+
+# Mapping of Confirm enquiry status codes to Open311 statuses
+reverse_status_mapping: {}
+
+# Mapping of Open311 statuses to Confirm enquiry status codes.
+forward_status_mapping: {}
+
+
 default_site_code: ""
 # site code value to use when reports are submitted without one. Not all
 # Confirms require a value, however.
@@ -27,13 +38,13 @@ enquiry_method_code: ""
 # The means by which the user made this report. Optional.
 
 point_of_contact_code: ""
+# The point of contact used to make this report. Optional.
 
 customer_type_code: ""
 # The type of customer to apply when raising enquiries in Confirm
 
 ignored_attributes: []
-service_whitelist: {}
-forward_status_mapping: {}
-reverse_status_mapping: {}
+
 attribute_descriptions: {}
+
 ignored_attribute_options: []

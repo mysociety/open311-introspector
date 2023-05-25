@@ -44,7 +44,8 @@ def new(backend: str, council: str, config_path: Path, force: bool):
             else:
                 dst.unlink()
         copy(src, dst)
-    click.echo(f"Created new {backend} config for {council} in {config_path}")
+        click.echo(f"Created {dst}")
+    click.echo(f"Next you should run:\n\n\tintrospector generate {council}")
 
 
 @main.command()

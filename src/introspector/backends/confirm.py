@@ -1,10 +1,16 @@
-from typing import Iterable, Tuple
-from html import escape
+import re
 from functools import cache
+from html import escape
+from pprint import pformat
+from typing import Iterable, Tuple
 
 import requests
 
 from ..backends import soap_response_to_dict
+
+
+class ConfirmError(Exception):
+    pass
 
 
 class ConfirmBackend:
@@ -16,15 +22,24 @@ class ConfirmBackend:
     def operation_request_as_dict(self, operation):
         response = self.make_operation_request(operation)
         parsed = soap_response_to_dict(response)
-        return parsed["{http://schemas.xmlsoap.org/soap/envelope/}Envelope"][
+        result = parsed["{http://schemas.xmlsoap.org/soap/envelope/}Envelope"][
             "{http://schemas.xmlsoap.org/soap/envelope/}Body"
         ][
             "{http://www.confirm.co.uk/schema/am/connector/webservice}ProcessOperationsResult"
         ][
             "Response"
-        ][
-            "OperationResponse"
         ]
+
+        if "Fault" in result:
+            reason = result["Fault"].get("Reason", "")
+            if re.search("Error calling method of a PBNI object", reason):
+                reason += " (This usually means the password was incorrect, or the user account has been locked.)"
+            raise ConfirmError(f"Error from Confirm: {reason}")
+
+        try:
+            return result["OperationResponse"]
+        except KeyError:
+            raise ConfirmError(f"Invalid result from Confirm: {pformat(result)}")
 
     def make_operation_request(self, *operations: Iterable[str]) -> requests.Response:
         url = self.config["endpoint_url"]
@@ -32,7 +47,7 @@ class ConfirmBackend:
         username = self.config["username"]
         password = self.config["password"]
         if not all((url, tenant, username, password)):
-            raise ValueError(
+            raise ConfirmError(
                 "Config not complete; please ensure the following are all specified: endpoint_url, username, password, tenant_id"
             )
         operations_xml = "\n".join(
