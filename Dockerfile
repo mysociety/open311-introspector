@@ -21,4 +21,4 @@ COPY . /app
 # re-run poetry to ensure project itself is installed
 RUN poetry install --no-dev --no-interaction --no-ansi
 
-ENTRYPOINT [ "/app/scripts/docker_entrypoint.sh" ]
+ENTRYPOINT [ "/app/script/docker_entrypoint.sh" ]
