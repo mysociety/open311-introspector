@@ -20,14 +20,14 @@ server_timezone: Europe/London
 # Confirm on Demand is always in Europe/London
 
 
-# Mapping of Confirm service/subject codes to Open311 groups/categories.
 service_whitelist: {}
+# Mapping of Confirm service/subject codes to Open311 groups/categories.
 
-# Mapping of Confirm enquiry status codes to Open311 statuses
 reverse_status_mapping: {}
+# Mapping of Confirm enquiry status codes to Open311 statuses
 
-# Mapping of Open311 statuses to Confirm enquiry status codes.
 forward_status_mapping: {}
+# Mapping of Open311 statuses to Confirm enquiry status codes.
 
 
 default_site_code: ""

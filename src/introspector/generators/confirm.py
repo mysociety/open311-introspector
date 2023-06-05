@@ -105,9 +105,22 @@ class ConfirmGenerator:
     def gen_endpoint_url(self):
         pass
 
-    @user_input("Default site code", default="")
     def gen_default_site_code(self):
-        pass
+        default_site_code = self.config["default_site_code"]
+        if default_site_code and not self.update_all:
+            return
+
+        click.echo("\n\nLooking for a few common default site codes...")
+        choices = set(self.backend.get_default_site_codes())
+        if default_site_code:
+            choices.add(default_site_code)
+        if comment := self._comment_for_key("default_site_code"):
+            click.echo(f"\n{comment}")
+        self.config["default_site_code"] = click.prompt(
+            "Default site code",
+            type=click.Choice(list(choices) + [""]),
+            default=default_site_code or "",
+        )
 
     def gen_reverse_status_mapping(self):
         mapping = self.config["reverse_status_mapping"]

@@ -3,6 +3,7 @@ from functools import cache
 from html import escape
 from pprint import pformat
 from typing import Iterable, Tuple
+from datetime import datetime, timedelta
 
 import requests
 
@@ -91,6 +92,18 @@ class ConfirmBackend:
             """<GetCustomerLookups></GetCustomerLookups>"""
         )["GetCustomerLookupsResponse"]
 
+    @cache
+    def GetActivityBySite(self, site_code, days=7):
+        end = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
+        start = (datetime.now() - timedelta(days=days)).strftime("%Y-%m-%dT%H:%M:%S")
+        return self.operation_request_as_dict(
+            f"""<GetActivityBySite>
+            <SiteCode>{site_code}</SiteCode>
+            <ActivityFromDate>{start}</ActivityFromDate>
+            <ActivityToDate>{end}</ActivityToDate>
+        </GetActivityBySite>"""
+        )["GetActivityBySiteResponse"]
+
     def get_status_codes(self) -> Iterable[Tuple[str, str, bool, bool]]:
         statuses = []
         for item in self.GetEnquiryLookups():
@@ -171,3 +184,14 @@ class ConfirmBackend:
                         subjects.append((scode, sname))
             codes.extend([(code, name, scode, sname) for scode, sname in subjects])
         return codes
+
+    def site_code_exists(self, site_code):
+        try:
+            return self.GetActivityBySite(site_code).get("SiteCode") == site_code
+        except ConfirmError:
+            return False
+
+    def get_default_site_codes(self):
+        # Try a few defaults that we've seen elsewhere
+        defaults = ["66666", "99999999", "9999999999"]
+        return [d for d in defaults if self.site_code_exists(d)]
